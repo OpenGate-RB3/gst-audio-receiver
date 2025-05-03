@@ -10,12 +10,13 @@ SCP		= scp
 
 
 SOURCES = \
-        main.cc
+        src/main.cc
 INCLUDES += -I ${SDKTARGETSYSROOT}/usr/include
 INCLUDES += -I ${SDKTARGETSYSROOT}/usr/include/glib-2.0
 INCLUDES += -I ${SDKTARGETSYSROOT}/usr/lib/glib-2.0/include
 INCLUDES += -I ${SDKTARGETSYSROOT}/usr/include/gstreamer-1.0
 INCLUDES += -I /home/andrew/QSDK/SDK/workspace/sources/qcom-gst-sample-apps-utils
+INCLUDES += -I include/
 TARGETS = $(foreach n,$(SOURCES),$(basename $(n)))
 
 LLIBS    += -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
