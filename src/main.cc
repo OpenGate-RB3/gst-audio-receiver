@@ -4,12 +4,16 @@
 #include <appContext.hpp>
 #include <gst/gst.h>
 
+
 // cxt of the application
 appContext::context cxt;
 
 
 void parse_args(const int argc, char **argv) {
-
+    argparse::ArgumentParser program("gst-audio-receiver",VERSION);
+    program.add_description("utility to receive in an RTSP audio stream, and play it");
+    program.add_argument("-location").required().help("Location of the stream: example rtsp://ip:port/ending");
+    program.add_argument("-format").default_value("AAC").help("The format of which the audio stream is encoded in");
 }
 
 
