@@ -10,7 +10,6 @@ namespace appContext {
 
     struct context {
         std::string streamLocation; // url of the stream location
-        std::string inFormat; // MPEG, OPUS, etc
         GstElement * pipeLine;
         std::vector<GstElement *> elements;
     };
