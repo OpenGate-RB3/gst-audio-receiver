@@ -25,7 +25,8 @@ void parse_args(const int argc, char **argv) {
 
 static void pad_added_handler(GstElement * src, GstPad * pad, gpointer user_data ) {
     std::cout << "Pad linking started" << std::endl;
-    GstPad * sink_pad = gst_element_get_static_pad(cxt.elements[1], "sink");
+    GstElement *target_element = GST_ELEMENT(user_data);
+    GstPad * sink_pad = gst_element_get_static_pad(target_element, "sink");
     if (!g_str_has_prefix(GST_PAD_NAME(pad), "recv_rtp_src_")) {
         std::cerr << "Pad linking aborted not right type" << std::endl;
         gst_object_unref(sink_pad);
@@ -59,7 +60,8 @@ static void pad_added_decodebin_handler(GstElement * src, GstPad * pad, gpointer
         std::cerr << "Decodebin pad is not audio, skipping" << std::endl;
         return;
     }
-    GstPad * sink_pad = gst_element_get_static_pad(cxt.elements[3], "sink");
+    GstElement *target_element = GST_ELEMENT(user_data);
+    GstPad * sink_pad = gst_element_get_static_pad(target_element, "sink");
     if (gst_pad_is_linked(sink_pad)) {
         std::cerr << "Pad linking failed" << std::endl;
         gst_object_unref(sink_pad);
@@ -98,8 +100,8 @@ bool setup_pipeline(appContext::context &ctx) {
         return false;
     };
 
-    g_signal_connect(rtpsrc,"pad-added",G_CALLBACK(pad_added_handler),NULL);
-    g_signal_connect(bindecode,"pad-added",G_CALLBACK(pad_added_decodebin_handler),NULL);
+    g_signal_connect(rtpsrc,"pad-added",G_CALLBACK(pad_added_handler),bindecode);
+    g_signal_connect(bindecode,"pad-added",G_CALLBACK(pad_added_decodebin_handler),audioconvert);
 
     // for clean up later
     cxt.elements.push_back(rtpsrc);
@@ -131,7 +133,9 @@ int main(int argc, char* argv[]) {
     parse_args(argc,argv);
 
     cxt.pipeLine = gst_pipeline_new("pipeline");
-    setup_pipeline(cxt);
+    if (!setup_pipeline(cxt)) {
+        return 1;
+    };
 
     // Create a GLib Main Loop
     GMainLoop *loop = g_main_loop_new(NULL, FALSE);
